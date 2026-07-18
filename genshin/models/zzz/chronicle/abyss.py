@@ -12,7 +12,9 @@ __all__ = (
     "LostVoidDataType",
     "LostVoidExplorationLog",
     "LostVoidLicense",
+    "LostVoidSpecialMission",
     "LostVoidSummary",
+    "LostVoidTaskForceInvestigation",
     "LostVoidUltimateChallenge",
 )
 
@@ -50,6 +52,27 @@ class LostVoidUltimateChallenge(APIModel):
     """Shortest Clear Time on the Highest Difficulty Completed."""
 
     has_data: bool
+    heat_count: typing.Optional[int] = None
+
+
+class LostVoidTaskForceInvestigation(APIModel):
+    """Lost void task force investigation max record."""
+
+    max_name: str = ""
+    heat_count: int = 0
+    max_count: int = 0
+    best_time: datetime.timedelta = datetime.timedelta()
+    has_data: bool = False
+
+
+class LostVoidSpecialMission(APIModel):
+    """Lost void special mission record."""
+
+    has_data: bool = False
+    heat_count: int = 0
+    high_difficulty: int = 0
+    max_count: int = 0
+    best_time: datetime.timedelta = datetime.timedelta()
 
 
 class LostVoidDataType(IntEnum):
@@ -83,3 +106,5 @@ class LostVoidSummary(APIModel):
     commission_progress: LostVoidCommissionProgress = Aliased("abyss_duty")
     ultimate_challenge: LostVoidUltimateChallenge = Aliased("abyss_max")
     data_collected: typing.Sequence[LostVoidData] = Aliased("abyss_collect")
+    abyss_task_force_investigation_max: typing.Optional[LostVoidTaskForceInvestigation] = None
+    special_mission: typing.Optional[LostVoidSpecialMission] = None

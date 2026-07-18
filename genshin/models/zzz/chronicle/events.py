@@ -135,6 +135,7 @@ class ZZZCharacterGachaEvent(ZZZGachaEvent):
     """ZZZ gacha event for characters."""
 
     characters: typing.Sequence[ZZZGachaEventCharacter] = Aliased("avatar_list")
+    idx: typing.Optional[int] = None
 
 
 class ZZZWeaponGachaEvent(ZZZGachaEvent):
