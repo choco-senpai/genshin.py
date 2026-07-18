@@ -217,9 +217,7 @@ class RecommendRelicProperties(APIModel):
 class RecommendRelicProperty(APIModel):
     """Recommended relic property block from character/detail."""
 
-    recommend_properties: RecommendRelicProperties = Aliased(
-        "recommend_properties", default_factory=RecommendRelicProperties
-    )
+    recommend_properties: RecommendRelicProperties = pydantic.Field(default_factory=RecommendRelicProperties)
     custom_properties: typing.Optional[typing.Any] = None
     has_set_recommend_prop: bool = False
 

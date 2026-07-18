@@ -16,6 +16,8 @@ __all__ = (
     "EventExplorationDetail",
     "EventReward",
     "GenshinEventCalendar",
+    "HardChallengeDetail",
+    "HardChallengeDetailSub",
     "TheaterDetail",
 )
 

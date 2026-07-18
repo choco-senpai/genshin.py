@@ -312,6 +312,7 @@ class Activities(APIModel):
     # Retain raw activity list for newer events not mapped to named fields above.
     activities: typing.Sequence[typing.Mapping[str, typing.Any]] = ()
     latest_activity_guide_url: str = ""
+    is_latest_activity_opened: bool = False
 
     @pydantic.model_validator(mode="before")
     def __flatten_activities(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:

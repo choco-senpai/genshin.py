@@ -194,8 +194,8 @@ class BaseCharacter(APIModel, Unique):
         return self.gacha_art
 
     @property
-    def computed_side_icon(self) -> str:
-        """Enka/Ambr side icon derived from `icon`."""
+    def enka_side_icon(self) -> str:
+        """Enka/Ambr side icon derived from `icon` (fallback when HoYoLAB `side_icon` is absent)."""
         return _create_icon(self.icon, "UI_AvatarIcon_Side_{}")
 
     @property
