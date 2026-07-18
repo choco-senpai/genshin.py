@@ -1,5 +1,7 @@
 """Starrail Rogue models."""
 
+import typing
+
 from genshin.models.model import APIModel
 
 from ..character import RogueCharacter
@@ -29,6 +31,8 @@ class RogueRecordBasic(APIModel):
     finish_cnt: int
     schedule_begin: PartialTime
     schedule_end: PartialTime
+    max_rogue_score: typing.Optional[int] = None
+    current_rogue_score: typing.Optional[int] = None
 
 
 class RogueBuffType(APIModel):

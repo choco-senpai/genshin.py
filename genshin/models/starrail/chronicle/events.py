@@ -33,6 +33,8 @@ class HSREventType(Enum):
     OTHER = "ActivityTypeOther"
     DOUBLE_REWARDS = "ActivityTypeDouble"
     """Plannar Fissure, Garden of Plenty, etc."""
+    GRID_FIGHT = "ActivityTypeGridFight"
+    """Grid Fight / Divergent Universe related activity panel."""
 
 
 class HSREventStatus(Enum):
@@ -51,6 +53,7 @@ class HSREventStatus(Enum):
     DOUBLE_REWARD_ACT_STATUS_PROGRESS = "DoubleRewardActStatusProgress"
     DOUBLE_REWARD_ACT_STATUS_UNOPENED = "DoubleRewardActStatusUnopened"
     OTHER_ACT_STATUS_FINISH = "OtherActStatusFinish"
+    ROGUE_TOURN_ACT_STATUS_PROGRESS = "RogueTournActStatusProgress"
 
 
 class HSREventTimeType(Enum):
@@ -120,6 +123,7 @@ class EventWarpCharacter(HSRBaseEventItem):
     icon: str = pydantic.Field(alias="icon_url")
     large_icon: str = pydantic.Field(alias="item_avatar_icon_path")
     element: int = pydantic.Field(alias="damage_type")
+    damage_type_name: typing.Optional[str] = None
 
 
 class EventWarpLightCone(HSRBaseEventItem):
@@ -140,6 +144,7 @@ class EventWarp(HSRBaseEvent):
     """Whether the event happens after last version's update."""
     version: str
     id: int
+    gacha_time_type: typing.Optional[str] = None
 
 
 class HSREventReward(APIModel):
@@ -151,6 +156,7 @@ class HSREventReward(APIModel):
     wiki_url: str
     num: int
     rarity: int
+    reward_type: typing.Optional[str] = None
 
 
 class HSREvent(HSRBaseEvent):
@@ -226,6 +232,10 @@ class HSRChallenge(HSRBaseEvent):
     total_progress: int
     current_progress: int
     show_text: str
+    challenge_peak_rank_icon_type: typing.Optional[str] = None
+    challenge_peak_rank_icon: typing.Optional[str] = None
+    challenge_peak_start_version: typing.Optional[str] = None
+    extra_progress: typing.Optional[int] = None
 
     @pydantic.field_validator("special_reward", mode="after")
     def __validate_special_reward(cls, v: typing.Optional[HSREventReward]) -> typing.Optional[HSREventReward]:
