@@ -26,6 +26,8 @@ __all__ = [
     "PartialCharacter",
     "PropInfo",
     "PropertyValue",
+    "RecommendRelicProperties",
+    "RecommendRelicProperty",
     "SkillAffix",
 ]
 
@@ -99,6 +101,11 @@ class Constellation(APIModel, Unique):
     effect: str
     activated: bool = Aliased("is_actived")
 
+    # Hexenzirkel / witch enhancement hooks
+    can_enhanced: bool = False
+    is_enhanced: bool = False
+    enhanced_effect: str = ""
+
     @property
     def scaling(self) -> bool:
         """Whether the constellation is simply for talent scaling"""
@@ -118,6 +125,7 @@ class Character(PartialCharacter):
 
     weapon: CharacterWeapon
     weapon_type: int
+    is_chosen: bool = False
 
 
 class PropInfo(APIModel):
@@ -150,6 +158,8 @@ class DetailCharacterWeapon(CharacterWeapon):
     main_stat: PropertyValue = Aliased("main_property")
     sub_stat: typing.Optional[PropertyValue] = Aliased("sub_property")
     ascension: int = Aliased("promote_level")
+    desc: str = ""
+    type_name: str = ""
 
 
 class ArtifactProperty(APIModel):
@@ -187,14 +197,40 @@ class CharacterSkill(APIModel):
     icon: str
     is_unlocked: bool = Aliased("is_unlock")
 
+    # Hexenzirkel / witch enhancement hooks
+    can_enhanced: bool = False
+    is_enhanced: bool = False
+    enhanced_desc: str = ""
+    before_enhanced_skill_attr_index: typing.Sequence[int] = ()
+    after_enhanced_skill_attr_index: typing.Sequence[int] = ()
+
+
+class RecommendRelicProperties(APIModel):
+    """HoYo recommended main/sub stats for artifacts."""
+
+    sand_main_property_list: typing.Sequence[int] = ()
+    goblet_main_property_list: typing.Sequence[int] = ()
+    circlet_main_property_list: typing.Sequence[int] = ()
+    sub_property_list: typing.Sequence[int] = ()
+
+
+class RecommendRelicProperty(APIModel):
+    """Recommended relic property block from character/detail."""
+
+    recommend_properties: RecommendRelicProperties = Aliased(
+        "recommend_properties", default_factory=RecommendRelicProperties
+    )
+    custom_properties: typing.Optional[typing.Any] = None
+    has_set_recommend_prop: bool = False
+
 
 class GenshinDetailCharacter(PartialCharacter):
     """Full Detailed Genshin Character"""
 
     is_chosen: bool
 
-    # display_image is a different image that is returned by the full character endpoint, but it is not the full gacha art.
-    display_image: str = Aliased("image")
+    # Same HoYoLAB CDN URL as `image` on BaseCharacter (kept for backward compat).
+    display_image: str = ""
 
     weapon_type: GenshinWeaponType
     weapon: DetailCharacterWeapon
@@ -210,6 +246,14 @@ class GenshinDetailCharacter(PartialCharacter):
     base_properties: typing.Sequence[PropertyValue]
     extra_properties: typing.Sequence[PropertyValue]
     element_properties: typing.Sequence[PropertyValue]
+
+    recommend_relic_property: typing.Optional[RecommendRelicProperty] = None
+
+    @pydantic.model_validator(mode="before")
+    def __sync_display_image(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:
+        if isinstance(values, dict) and not values.get("display_image") and values.get("image"):
+            values["display_image"] = values["image"]
+        return values
 
 
 class GenshinDetailCharacters(APIModel):

@@ -19,6 +19,7 @@ __all__ = [
     "Notes",
     "TaskReward",
     "TaskRewardStatus",
+    "WeekActiveProgress",
 ]
 
 
@@ -134,9 +135,34 @@ class DailyTasks(APIModel):
     attendance_visible: bool
 
     stored_attendance: float
-    stored_attendance_refresh_countdown: typing.Optional[datetime.timedelta] = Aliased(
-        "attendance_refresh_time", default=None
+    stored_attendance_refresh_countdown: typing.Optional[datetime.timedelta] = pydantic.Field(
+        default=None,
+        validation_alias=pydantic.AliasChoices(
+            "stored_attendance_refresh_countdown", "attendance_refresh_time"
+        ),
+        serialization_alias="stored_attendance_refresh_countdown",
     )
+
+    @pydantic.field_validator("stored_attendance_refresh_countdown", mode="before")
+    def __process_attendance_countdown(cls, v: typing.Any) -> typing.Optional[datetime.timedelta]:
+        if v is None or v == "":
+            return None
+        if isinstance(v, datetime.timedelta):
+            return v
+        return datetime.timedelta(seconds=int(v))
+
+
+class WeekActiveProgress(APIModel):
+    """Progress for the permanent 'To Temper Thyself and Journey Far' event."""
+
+    progress_current: int
+    progress_total: int
+    period_progress_current: int
+    period_progress_total: int
+    unlock: bool = True
+    progress_current_arr: typing.Sequence[int] = ()
+    is_active_period: bool = True
+    current_weekday: int = 0
 
 
 class ArchonQuestStatus(str, enum.Enum):
@@ -162,6 +188,7 @@ class ArchonQuestProgress(APIModel):
     mainlines_finished: bool = Aliased("is_finish_all_mainline")
     archon_quest_unlocked: bool = Aliased("is_open_archon_quest")
     interchapters_finished: bool = Aliased("is_finish_all_interchapter")
+    wiki_url: str = ""
 
 
 class Notes(APIModel):
@@ -188,6 +215,8 @@ class Notes(APIModel):
     max_expeditions: int = Aliased("max_expedition_num")
 
     archon_quest_progress: ArchonQuestProgress
+    week_active_progress: typing.Optional[WeekActiveProgress] = None
+    calendar_url: str = ""
 
     @pydantic.field_validator("remaining_resin_recovery_time", "remaining_realm_currency_recovery_time", mode="before")
     def __process_timedelta(cls, v: str) -> datetime.timedelta:

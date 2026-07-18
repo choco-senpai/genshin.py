@@ -30,6 +30,7 @@ class BannerCharacter(APIModel):
     name: str
     element: str
     rarity: typing.Literal[4, 5]
+    is_invisible: bool = False
 
 
 class BannerWeapon(APIModel):
@@ -163,3 +164,7 @@ class GenshinEventCalendar(APIModel):
     chronicled_banners: typing.Sequence[Banner] = Aliased("mixed_card_pool_list")
     events: typing.Sequence[Event] = Aliased("act_list")
     challenges: typing.Sequence[Event] = Aliased("fixed_act_list")
+
+    selected_act_list: typing.Sequence[Event] = ()
+    selected_avatar_card_pool_list: typing.Sequence[Banner] = ()
+    selected_mixed_card_pool_list: typing.Sequence[Banner] = ()

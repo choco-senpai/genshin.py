@@ -114,6 +114,9 @@ class SpiralAbyss(APIModel):
     max_floor: str
     total_stars: int = Aliased("total_star")
 
+    skipped_floor: str = ""
+    is_just_skipped_floor: bool = False
+
     ranks: CharacterRanks
 
     floors: typing.Sequence[Floor]
