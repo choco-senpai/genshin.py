@@ -10,8 +10,14 @@ __all__ = (
     "AgentSkillItem",
     "DiscSetEffect",
     "WEngine",
+    "ZZZAgentEquipPlanCultivateInfo",
+    "ZZZAgentEquipPlanCustomInfo",
+    "ZZZAgentEquipPlanGameDefault",
+    "ZZZAgentEquipPlanInfo",
+    "ZZZAgentEquipPlanProperty",
     "ZZZAgentProperty",
     "ZZZAgentRank",
+    "ZZZAgentSkin",
     "ZZZAwakenedPotential",
     "ZZZAwakenedPotentialInfo",
     "ZZZAwakenedPotentialSkill",
@@ -64,6 +70,8 @@ class ZZZBaseAgent(APIModel, Unique):
     rectangle_icon: str = Aliased("hollow_icon_path")
     square_icon: str = Aliased("role_square_url")
     faction_name: str = Aliased("camp_name_mi18n")
+    sub_element_type: int = 0
+    awaken_state: typing.Optional[str] = None
 
 
 class ZZZPartialAgent(ZZZBaseAgent):
@@ -138,6 +146,10 @@ class ZZZProperty(APIModel):
     name: str = Aliased("property_name")
     type: typing.Union[int, ZZZPropertyType] = Aliased("property_id")
     value: str = Aliased("base")
+    system_id: typing.Optional[int] = None
+    valid: typing.Optional[bool] = None
+    level: typing.Optional[int] = None
+    add: typing.Optional[typing.Union[str, int]] = None
 
     @pydantic.field_validator("type", mode="before")
     def __cast_id(cls, v: int) -> typing.Union[int, ZZZPropertyType]:
@@ -189,6 +201,7 @@ class ZZZDisc(APIModel):
     properties: typing.Sequence[ZZZProperty]
     set_effect: DiscSetEffect = Aliased("equip_suit")
     position: int = Aliased("equipment_type")
+    invalid_property_cnt: typing.Optional[int] = None
 
 
 class ZZZSkillType(enum.IntEnum):
@@ -216,6 +229,7 @@ class AgentSkill(APIModel):
     type: ZZZSkillType = Aliased("skill_type")
     items: typing.Sequence[AgentSkillItem]
     """One skill can have different forms (?), so there are multiple 'items'."""
+    awaken_state: typing.Optional[str] = None
 
 
 class ZZZAgentRank(APIModel):
@@ -260,6 +274,55 @@ class ZZZAwakenedPotentialInfo(APIModel):
     items: typing.Sequence[ZZZAwakenedPotential] = Aliased("skill_awaken_items")
 
 
+class ZZZAgentSkin(APIModel):
+    """ZZZ agent skin/outfit."""
+
+    skin_id: int
+    skin_name: str
+    skin_vertical_painting_url: str
+    skin_square_url: str
+
+
+class ZZZAgentEquipPlanProperty(APIModel):
+    """Property entry in an equip plan."""
+
+    id: int
+    name: str
+    full_name: str
+    system_id: int
+    is_select: bool
+
+
+class ZZZAgentEquipPlanGameDefault(APIModel):
+    """Game-default equip plan property recommendations."""
+
+    property_list: typing.Sequence[ZZZAgentEquipPlanProperty] = ()
+
+
+class ZZZAgentEquipPlanCultivateInfo(APIModel):
+    """Cultivate equip plan metadata."""
+
+    name: str = ""
+    plan_id: str = "0"
+    is_delete: bool = False
+    old_plan: bool = False
+
+
+class ZZZAgentEquipPlanCustomInfo(APIModel):
+    """Custom equip plan metadata."""
+
+    property_list: typing.Sequence[ZZZAgentEquipPlanProperty] = ()
+
+
+class ZZZAgentEquipPlanInfo(APIModel):
+    """Agent equip plan info."""
+
+    type: int = 0
+    game_default: typing.Optional[ZZZAgentEquipPlanGameDefault] = None
+    cultivate_info: typing.Optional[ZZZAgentEquipPlanCultivateInfo] = None
+    custom_info: typing.Optional[ZZZAgentEquipPlanCustomInfo] = None
+
+
 class ZZZFullAgent(ZZZBaseAgent):
     """Character with equipment."""
 
@@ -275,6 +338,10 @@ class ZZZFullAgent(ZZZBaseAgent):
     potential: ZZZAwakenedPotentialInfo = Aliased("skill_awaken")
 
     banner_icon: str = Aliased("role_vertical_painting_url")
+    us_full_name: typing.Optional[str] = None
+    vertical_painting_color: typing.Optional[str] = None
+    skin_list: typing.Sequence[ZZZAgentSkin] = ()
+    equip_plan_info: typing.Optional[ZZZAgentEquipPlanInfo] = None
 
     @staticmethod
     def _extract_skin_id(url: str) -> typing.Optional[int]:

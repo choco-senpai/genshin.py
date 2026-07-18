@@ -9,6 +9,9 @@ __all__ = (
     "ZZZGachaBannerInfo",
     "ZZZGachaCurrencies",
     "ZZZGachaInfo",
+    "ZZZGachaTicket",
+    "ZZZGachaUpSAvatar",
+    "ZZZGachaUpSItem",
 )
 
 
@@ -22,12 +25,39 @@ class ZZZGachaCurrencies(APIModel):
     boopon: int
 
 
+class ZZZGachaTicket(APIModel):
+    """Raw gacha ticket currency entry."""
+
+    ticket_type: str
+    ticket_cnt: int
+
+
+class ZZZGachaUpSAvatar(APIModel):
+    """Featured S-rank avatar on a gacha banner."""
+
+    avatar_id: int
+    avatar_name: str
+    rarity: typing.Literal["S", "A"]
+    icon: str
+    avatar_profession: int
+    avatar_element_type: int
+    avatar_sub_element_type: int = 0
+
+
+class ZZZGachaUpSItem(APIModel):
+    """Featured UP S item on a gacha banner."""
+
+    item_type: str
+    avatar: typing.Optional[ZZZGachaUpSAvatar] = None
+
+
 class ZZZGachaBannerInfo(APIModel):
     """ZZZ gacha banner info model."""
 
     type: ZZZGachaEventType = Aliased("gacha_type")
     pity: int = Aliased("more_s_need_cnt")
     """Number of pulls needed until guaranteed S."""
+    up_s_item_list: typing.Sequence[ZZZGachaUpSItem] = ()
 
 
 class ZZZGachaInfo(APIModel):
@@ -35,6 +65,8 @@ class ZZZGachaInfo(APIModel):
 
     currencies: ZZZGachaCurrencies
     banners: list[ZZZGachaBannerInfo] = Aliased("gacha_info_list")
+    tickets: typing.Sequence[ZZZGachaTicket] = ()
+    record_show_gachas: typing.Sequence[str] = ()
 
     @pydantic.model_validator(mode="before")
     @classmethod

@@ -2,9 +2,9 @@ import typing
 
 import pydantic
 
-from genshin.models.model import Aliased, APIModel
+from genshin.models.model import Aliased, APIModel, DateTime
 from genshin.models.starrail.chronicle.base import PartialTime
-from genshin.models.zzz.character import ZZZElementType
+from genshin.models.zzz.character import ZZZElementType, ZZZSpecialty
 
 __all__ = (
     "ThresholdSimulation",
@@ -31,6 +31,9 @@ class ThresholdSimulationInfo(APIModel):
     ending_background: str = Aliased("ending_record_bg_pic")
     total_score: int
     rank_percent: str
+    max_score: typing.Optional[int] = None
+    start_time: typing.Optional[DateTime] = None
+    ending_record_id: typing.Optional[int] = None
 
     @pydantic.field_validator("rank_percent", mode="before")
     def __parse_rank_percent(cls, value: int) -> str:
@@ -46,6 +49,8 @@ class ThresholdSimulationCharacter(APIModel):
     rarity: typing.Literal["S", "A"]
     mindscape: int = Aliased("rank")
     icon: str = Aliased("role_square_url")
+    sub_element_type: int = 0
+    avatar_profession: typing.Optional[typing.Union[int, ZZZSpecialty]] = None
 
 
 class ThresholdSimulationBangboo(APIModel):
@@ -83,19 +88,19 @@ class ThresholdSimulationChallenge(APIModel):
 
     characters: typing.Sequence[ThresholdSimulationCharacter] = Aliased("avatar_list")
     bangboo: typing.Optional[ThresholdSimulationBangboo] = Aliased("buddy", default=None)
-    buff: ThresholdSimulationBuff = Aliased("buffer")
+    buff: typing.Optional[ThresholdSimulationBuff] = Aliased("buffer", default=None)
 
 
 class ThresholdSimulationMainChallenge(ThresholdSimulationChallenge):
     """ZZZ Threshold Simulation main challenge model."""
 
-    node_id: int
-    score: int
-    max_score: int
-    score_multiplier: str = Aliased("score_ratio")
-    time: PartialTime = Aliased("challenge_time")
+    node_id: typing.Optional[int] = None
+    score: typing.Optional[int] = None
+    max_score: typing.Optional[int] = None
+    score_multiplier: typing.Optional[str] = Aliased("score_ratio", default=None)
+    time: typing.Optional[PartialTime] = Aliased("challenge_time", default=None)
 
-    sub_challenges: typing.Sequence["ThresholdSimulationChallenge"] = Aliased("sub_challenge_record")
+    sub_challenges: typing.Sequence[ThresholdSimulationChallenge] = Aliased("sub_challenge_record", default=())
 
 
 class ThresholdSimulationBossChallenge(APIModel):
@@ -118,5 +123,5 @@ class ThresholdSimulation(APIModel):
 
     info: ThresholdSimulationInfo = Aliased("void_front_battle_abstract_info_brief")
     boss_challenge: ThresholdSimulationBossChallenge = Aliased("boss_challenge_record")
-    challenges: typing.Sequence[ThresholdSimulationChallenge] = Aliased("main_challenge_record_list")
+    challenges: typing.Sequence[ThresholdSimulationMainChallenge] = Aliased("main_challenge_record_list")
     player: ThresholdSimulationPlayer = Aliased("role_basic_info")

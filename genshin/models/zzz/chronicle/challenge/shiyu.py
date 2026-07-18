@@ -139,6 +139,8 @@ class ShiyuDefenseV1(APIModel):
     schedule_id: int
     begin_time: typing.Optional[DateTime] = Aliased("hadal_begin_time")
     end_time: typing.Optional[DateTime] = Aliased("hadal_end_time")
+    begin_time_unix: typing.Optional[str] = Aliased("begin_time", default=None)
+    end_time_unix: typing.Optional[str] = Aliased("end_time", default=None)
     has_data: bool
     ratings: typing.Mapping[typing.Literal["S", "A", "B"], int] = Aliased("rating_list")
     floors: list[ShiyuDefenseFloor] = Aliased("all_floor_detail")
@@ -218,6 +220,7 @@ class ShiyuV2BriefInfo(APIModel):
     total_clear_time: typing.Optional[int] = Aliased("battle_time", default=None)
     rating: typing.Optional[typing.Literal["S+", "S", "A", "B"]]
     challenge_time: typing.Optional[DateTime] = None
+    cur_period_zone_layer_count: typing.Optional[int] = None
 
     @pydantic.field_validator("rating", mode="before")
     def __parse_rating(
@@ -236,6 +239,8 @@ class ShiyuDefenseV2(APIModel):
     schedule_id: int = Aliased("zone_id")
     begin_time: typing.Optional[DateTime] = Aliased("hadal_begin_time")
     end_time: typing.Optional[DateTime] = Aliased("hadal_end_time")
+    begin_time_unix: typing.Optional[str] = Aliased("begin_time", default=None)
+    end_time_unix: typing.Optional[str] = Aliased("end_time", default=None)
     passed_fifth_floor: bool = Aliased("pass_fifth_floor")
 
     brief_info: typing.Optional[ShiyuV2BriefInfo] = Aliased("brief", default=None)

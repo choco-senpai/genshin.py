@@ -9,8 +9,16 @@ import pydantic
 
 from genshin.models.model import Aliased, APIModel, prevent_enum_error
 
-__all__ = ("BatteryCharge", "VideoStoreState", "ZZZEngagement", "ZZZMemberCard", "ZZZNotes", "ZZZTempleRunning")
-
+__all__ = (
+    "BatteryCharge",
+    "BountyCommission",
+    "VideoStoreSale",
+    "VideoStoreState",
+    "ZZZEngagement",
+    "ZZZMemberCard",
+    "ZZZNotes",
+    "ZZZTempleRunning",
+)
 logger: logging.Logger = logging.getLogger(__name__)
 
 
@@ -169,6 +177,7 @@ class BountyCommission(APIModel):
     total: int
     refresh_time: datetime.timedelta
     unlock: typing.Optional[bool] = None
+    hide: typing.Optional[bool] = None
 
     @property
     def completed(self) -> bool:
@@ -202,6 +211,7 @@ class WeeklyTask(APIModel):
     cur_point: int
     max_point: int
     refresh_time: datetime.timedelta
+    unlock: typing.Optional[bool] = None
 
     @property
     def completed(self) -> bool:
@@ -212,6 +222,12 @@ class WeeklyTask(APIModel):
     def reset_datetime(self) -> datetime.datetime:
         """The datetime when the weekly tasks will be reset."""
         return datetime.datetime.now().astimezone() + self.refresh_time
+
+
+class VideoStoreSale(APIModel):
+    """Raw video store sale payload."""
+
+    sale_state: typing.Union[VideoStoreState, str]
 
 
 class ZZZNotes(APIModel):
@@ -226,6 +242,10 @@ class ZZZNotes(APIModel):
     card_sign: ZZZCardSignState
     member_card: ZZZMemberCard
     temple_running: ZZZTempleRunning
+    bounty_commission: typing.Optional[BountyCommission] = None
+    abyss_refresh: typing.Optional[int] = None
+    cafe_state: typing.Optional[str] = None
+    vhs_sale: typing.Optional[VideoStoreSale] = None
 
     @pydantic.field_validator("scratch_card_completed", mode="before")
     @classmethod
@@ -235,11 +255,12 @@ class ZZZNotes(APIModel):
     @pydantic.model_validator(mode="before")
     @classmethod
     def __unnest_value(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:
-        if "video_store_state" not in values:
-            values["video_store_state"] = values["vhs_sale"]["sale_state"]
+        vhs_sale = values.get("vhs_sale")
+        if "video_store_state" not in values and isinstance(vhs_sale, dict):
+            values["video_store_state"] = vhs_sale["sale_state"]
         if "hollow_zero" not in values:
             values["hollow_zero"] = {
-                "bounty_commission": values["bounty_commission"],
-                "survey_points": values["survey_points"],
+                "bounty_commission": values.get("bounty_commission"),
+                "survey_points": values.get("survey_points"),
             }
         return values
