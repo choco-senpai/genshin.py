@@ -13,10 +13,16 @@ __all__ = (
     "BattleStatCharacter",
     "ImgTheater",
     "ImgTheaterData",
+    "SplendourBuff",
+    "SplendourBuffSummary",
+    "TarotCard",
+    "TarotCardState",
     "TheaterBattleStats",
     "TheaterBuff",
     "TheaterCharaType",
     "TheaterDifficulty",
+    "TheaterEnemy",
+    "TheaterLinks",
     "TheaterSchedule",
     "TheaterStats",
 )
@@ -65,6 +71,7 @@ class TheaterEnemy(APIModel):
 
     name: str
     icon: str = ""
+    level: int = 0
 
 
 class SplendourBuffSummary(APIModel):
@@ -77,7 +84,7 @@ class SplendourBuffSummary(APIModel):
 class SplendourBuff(APIModel):
     """Splendour buff block on a theater round."""
 
-    summary: SplendourBuffSummary = Aliased("summary", default_factory=SplendourBuffSummary)
+    summary: SplendourBuffSummary = pydantic.Field(default_factory=SplendourBuffSummary)
 
 
 class Act(APIModel):
@@ -188,6 +195,7 @@ class TheaterLinks(APIModel):
     """External links for imaginarium theater."""
 
     lineup_link: str = ""
+    lineup_link_pc: str = ""
     more_link: str = ""
 
 

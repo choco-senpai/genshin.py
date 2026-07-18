@@ -24,6 +24,7 @@ __all__ = [
     "Stats",
     "Teapot",
     "TeapotRealm",
+    "WorldExplorationDisplay",
 ]
 
 
