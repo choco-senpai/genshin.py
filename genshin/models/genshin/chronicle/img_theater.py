@@ -44,6 +44,7 @@ class TheaterDifficulty(enum.IntEnum):
 class ActCharacter(character.BaseCharacter):
     """A character in an act."""
 
+    id: int = Aliased("avatar_id", default=0)
     type: TheaterCharaType = Aliased("avatar_type")
     level: int
 
@@ -59,6 +60,26 @@ class TheaterBuff(APIModel):
     id: int
 
 
+class TheaterEnemy(APIModel):
+    """Enemy in an imaginarium theater round."""
+
+    name: str
+    icon: str = ""
+
+
+class SplendourBuffSummary(APIModel):
+    """Splendour blessing summary for a theater round."""
+
+    total_level: int = 0
+    desc: str = ""
+
+
+class SplendourBuff(APIModel):
+    """Splendour buff block on a theater round."""
+
+    summary: SplendourBuffSummary = Aliased("summary", default_factory=SplendourBuffSummary)
+
+
 class Act(APIModel):
     """One act in the theater."""
 
@@ -71,6 +92,8 @@ class Act(APIModel):
     finish_datetime: TZDateTime = Aliased("finish_date_time")
     is_arcana: bool = Aliased("is_tarot", default=False)
     arcana_number: typing.Optional[int] = Aliased("tarot_serial_no", default=None)
+    enemies: typing.Sequence[TheaterEnemy] = ()
+    splendour_buff: typing.Optional[SplendourBuff] = None
 
     @pydantic.field_validator("finish_datetime", mode="before")
     def __parse_datetime(cls, value: typing.Mapping[str, typing.Any]) -> datetime.datetime:
@@ -144,6 +167,30 @@ class TheaterBattleStats(APIModel):
         return value
 
 
+class TarotCard(APIModel):
+    """Tarot card unlock state in imaginarium theater."""
+
+    icon: str = ""
+    name: str = ""
+    is_unlock: bool = False
+    unlock_num: int = 0
+
+
+class TarotCardState(APIModel):
+    """Tarot collection progress for imaginarium theater."""
+
+    total_num: int = 0
+    curr_num: int = 0
+    list: typing.Sequence[TarotCard] = ()
+
+
+class TheaterLinks(APIModel):
+    """External links for imaginarium theater."""
+
+    lineup_link: str = ""
+    more_link: str = ""
+
+
 class ImgTheaterData(APIModel):
     """Imaginarium theater data."""
 
@@ -154,6 +201,8 @@ class ImgTheaterData(APIModel):
     has_data: bool
     has_detail_data: bool
     battle_stats: typing.Optional[TheaterBattleStats] = Aliased("fight_statisic", default=None)
+    # Raw detail blob retained when present (empty rounds still carry detail_stat etc.)
+    detail: typing.Optional[typing.Mapping[str, typing.Any]] = None
 
     @pydantic.model_validator(mode="before")
     def __unnest_detail(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:
@@ -169,3 +218,5 @@ class ImgTheater(APIModel):
 
     datas: typing.Sequence[ImgTheaterData] = Aliased("data")
     unlocked: bool = Aliased("is_unlock")
+    tarot_card_state: typing.Optional[TarotCardState] = None
+    links: typing.Optional[TheaterLinks] = None

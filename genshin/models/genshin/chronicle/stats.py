@@ -79,6 +79,7 @@ class Offering(APIModel):
     name: str
     level: int
     icon: str = ""
+    open_state: str = ""
 
 
 class BossKill(APIModel):
@@ -116,6 +117,13 @@ class NatlanReputation(APIModel):
     tribes: typing.Sequence[NatlanTribe] = Aliased("tribal_list")
 
 
+class WorldExplorationDisplay(APIModel):
+    """Homepage world exploration display grouping."""
+
+    exploration_id: int
+    group: typing.Mapping[str, typing.Any] = pydantic.Field(default_factory=dict)
+
+
 class Exploration(APIModel):
     """Exploration data."""
 
@@ -138,6 +146,9 @@ class Exploration(APIModel):
     boss_list: typing.Sequence[BossKill]
     area_exploration_list: typing.Sequence[AreaExploration]
     natlan_reputation: typing.Optional[NatlanReputation] = Aliased("natan_reputation", default=None)
+
+    detail_active: bool = False
+    world_type: int = 0
 
     @property
     def explored(self) -> float:
@@ -186,6 +197,10 @@ class PartialGenshinUserStats(APIModel):
     characters: typing.Sequence[characters_module.PartialCharacter] = Aliased("avatars")
     explorations: typing.Sequence[Exploration] = Aliased("world_explorations")
     teapot: typing.Optional[Teapot] = Aliased("homes")
+
+    world_exploration_display: typing.Sequence[WorldExplorationDisplay] = ()
+    query_tool_image: str = ""
+    query_tool_link: str = ""
 
     @pydantic.field_validator("teapot", mode="before")
     def __format_teapot(cls, v: typing.Any) -> typing.Optional[dict[str, typing.Any]]:

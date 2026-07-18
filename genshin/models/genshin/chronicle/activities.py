@@ -309,6 +309,10 @@ class Activities(APIModel):
     martial_legend: typing.Optional[Activity[typing.Any]] = None
     chess: typing.Optional[Activity[typing.Any]] = None
 
+    # Retain raw activity list for newer events not mapped to named fields above.
+    activities: typing.Sequence[typing.Mapping[str, typing.Any]] = ()
+    latest_activity_guide_url: str = ""
+
     @pydantic.model_validator(mode="before")
     def __flatten_activities(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:
         if not values.get("activities"):
@@ -323,7 +327,7 @@ class Activities(APIModel):
         activites: list[dict[str, typing.Any]] = values["activities"]
         for activity in activites:
             for name, value in activity.items():
-                if "exists_data" not in value:
+                if not isinstance(value, dict) or "exists_data" not in value:
                     continue
 
                 name_ = slugs.get(name, name)

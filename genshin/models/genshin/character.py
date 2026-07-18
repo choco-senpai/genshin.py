@@ -130,6 +130,11 @@ class BaseCharacter(APIModel, Unique):
     rarity: int
     icon: str
 
+    # HoYoLAB CDN URLs when present on the payload (not Enka/Ambr computed art)
+    image: typing.Optional[str] = None
+    side_icon: typing.Optional[str] = None
+    card_image: typing.Optional[str] = None
+
     collab: bool = False
 
     @pydantic.model_validator(mode="before")
@@ -179,16 +184,18 @@ class BaseCharacter(APIModel, Unique):
         return values
 
     @property
-    @deprecation.deprecated("gacha_art")
-    def image(self) -> str:
-        return _create_icon_from_id(self.id, "UI_Gacha_AvatarImg_{}")
-
-    @property
     def gacha_art(self) -> str:
+        """Enka/Ambr gacha art (fallback when HoYoLAB `image` is absent)."""
         return _create_icon_from_id(self.id, "UI_Gacha_AvatarImg_{}")
 
     @property
-    def side_icon(self) -> str:
+    @deprecation.deprecated("gacha_art")
+    def enka_image(self) -> str:
+        return self.gacha_art
+
+    @property
+    def computed_side_icon(self) -> str:
+        """Enka/Ambr side icon derived from `icon`."""
         return _create_icon(self.icon, "UI_AvatarIcon_Side_{}")
 
     @property

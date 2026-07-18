@@ -28,6 +28,7 @@ class BannerCharacter(APIModel):
     name: str
     element: str
     rarity: typing.Literal[4, 5]
+    is_invisible: bool = False
 
 
 class BannerWeapon(APIModel):
@@ -104,6 +105,24 @@ class TheaterDetail(APIModel):
     has_data: bool
 
 
+class HardChallengeDetailSub(APIModel):
+    """Stygian Onslaught teaser coordinates / remaining seconds."""
+
+    seconds: int = 0
+    x: int = 0
+    y: int = 0
+
+
+class HardChallengeDetail(APIModel):
+    """Stygian Onslaught teaser on an event calendar entry."""
+
+    is_unlock: bool = False
+    difficulty: int = 0
+    second: int = 0
+    icon: str = ""
+    sub: typing.Optional[HardChallengeDetailSub] = None
+
+
 class Event(APIModel):
     """Event model."""
 
@@ -127,6 +146,7 @@ class Event(APIModel):
     double_reward_detail: typing.Optional[DoubleRewardDetail] = Aliased("double_detail", default=None)
     abyss_detail: typing.Optional[AbyssDetail] = Aliased("tower_detail", default=None)
     theater_detail: typing.Optional[TheaterDetail] = Aliased("role_combat_detail", default=None)
+    hard_challenge_detail: typing.Optional[HardChallengeDetail] = None
 
     @pydantic.field_validator("description", mode="after")
     def __format_description(cls, v: str) -> str:
@@ -141,3 +161,7 @@ class GenshinEventCalendar(APIModel):
     chronicled_banners: typing.Sequence[Banner] = Aliased("mixed_card_pool_list")
     events: typing.Sequence[Event] = Aliased("act_list")
     challenges: typing.Sequence[Event] = Aliased("fixed_act_list")
+
+    selected_act_list: typing.Sequence[Event] = ()
+    selected_avatar_card_pool_list: typing.Sequence[Banner] = ()
+    selected_mixed_card_pool_list: typing.Sequence[Banner] = ()
