@@ -62,6 +62,17 @@ class StarRailNote(APIModel):
     current_reserve_stamina: int
     is_reserve_stamina_full: bool
 
+    grid_fight_weekly_max: typing.Optional[int] = None
+    """Max weekly Grid Fight score."""
+    grid_fight_weekly_cur: typing.Optional[int] = None
+    """Current weekly Grid Fight score."""
+    period_max_score: typing.Optional[int] = None
+    period_score: typing.Optional[int] = None
+    stamina_full_ts: typing.Optional[int] = None
+    """Unix timestamp when stamina will be full."""
+    current_ts: typing.Optional[int] = None
+    rogue_tourn_exp_is_full: typing.Optional[bool] = None
+
     @property
     def stamina_recovery_time(self) -> datetime.datetime:
         """The time when stamina will be recovered."""

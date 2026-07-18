@@ -1,5 +1,7 @@
 """Starrail base character model."""
 
+from __future__ import annotations
+
 import enum
 import typing
 
@@ -23,6 +25,9 @@ __all__ = (
     "RelicProperty",
     "RogueCharacter",
     "SimpleRelic",
+    "SkillExclusiveSkill",
+    "SkillLinkToAvatarSkill",
+    "SkillLinkedAvatar",
     "SkillStage",
     "StarRailBaseCharacter",
     "StarRailBaseEquipment",
@@ -36,7 +41,6 @@ __all__ = (
     "StarRailPath",
     "StarRailSimpleCharacter",
 )
-
 
 class StarRailPath(enum.IntEnum):
     """StarRail character path."""
@@ -67,6 +71,10 @@ class StarRailPartialCharacter(StarRailBaseCharacter):
     name: str
     level: int
     rank: int
+    element_id: typing.Optional[int] = None
+    path: typing.Optional[typing.Union[int, StarRailPath]] = Aliased("base_type", default=None)
+    figure_path: typing.Optional[str] = None
+    equip: typing.Optional["StarRailBaseEquipment"] = None
 
 
 class FloorCharacter(StarRailBaseCharacter):
@@ -74,6 +82,7 @@ class FloorCharacter(StarRailBaseCharacter):
 
     level: int
     rank: int
+    is_return_assist: typing.Optional[bool] = None
 
 
 class RogueCharacter(StarRailBaseCharacter):
@@ -212,6 +221,26 @@ class StarRailCharacterProperty(StarRailBaseProperty):
     recommended: bool
 
 
+class SkillExclusiveSkill(APIModel):
+    """Exclusive skill text block on a skill stage."""
+
+    name: str = ""
+    desc: str = ""
+
+
+class SkillLinkedAvatar(APIModel):
+    """Linked avatar reference on a skill stage."""
+
+    avatar_id: str = "0"
+    name: str = ""
+
+
+class SkillLinkToAvatarSkill(APIModel):
+    """Memosprite skill link entry describing a teammate-linked effect."""
+
+    desc: str = ""
+
+
 class SkillStage(APIModel):
     """Character skill stage."""
 
@@ -222,6 +251,14 @@ class SkillStage(APIModel):
     item_url: str
     is_activated: bool
     is_rank_work: bool
+    skill_id: typing.Optional[str] = None
+    special_point_type: typing.Optional[str] = None
+    desc_icon_map: typing.Optional[typing.Mapping[str, str]] = None
+    exclusive_skill: typing.Optional[SkillExclusiveSkill] = None
+    linked_avatar: typing.Optional[SkillLinkedAvatar] = None
+    linked_skill_id: typing.Optional[str] = None
+    elation_skill_priority: typing.Optional[str] = None
+    linked_avatar_list: typing.Sequence[SkillLinkedAvatar] = ()
 
 
 class BaseSkill(APIModel):
@@ -242,6 +279,8 @@ class DetailSkill(BaseSkill):
     """HSR character/memosprite skill for detail character."""
 
     skill_stages: typing.Sequence[SkillStage]
+    special_point_type: typing.Optional[str] = None
+    link_to_avatar_skills: typing.Sequence[SkillLinkToAvatarSkill] = ()
 
 
 class BaseMemoSprite(APIModel):
@@ -274,12 +313,14 @@ class StarRailSimpleCharacter(StarRailPartialCharacter):
     """
 
     image: str
-    equip: typing.Optional[StarRailEquipment]
+    equip: typing.Optional[StarRailEquipment] = None
     relics: typing.Sequence[SimpleRelic]
     ornaments: typing.Sequence[SimpleRelic]
     ranks: typing.Sequence[Rank]
     path: StarRailPath = Aliased("base_type")
     figure_path: str
+    element_id: typing.Optional[int] = None
+    avatar_ld_type: typing.Optional[str] = None
 
     @property
     def is_wearing_outfit(self) -> bool:

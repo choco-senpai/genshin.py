@@ -23,6 +23,10 @@ class StarRailStats(APIModel):
     chest_num: int
     abyss_process: str
     dreamscape_pass_sticker: int = Aliased("dream_paster_num")
+    peak_rank_icon_type: typing.Optional[str] = None
+    peak_rank_icon: typing.Optional[str] = None
+    season_title: typing.Optional[str] = None
+    field_ext_map: typing.Optional[typing.Mapping[str, typing.Any]] = None
 
 
 class PartialStarRailUserStats(APIModel):
@@ -32,6 +36,7 @@ class PartialStarRailUserStats(APIModel):
     characters: typing.Sequence[character.StarRailPartialCharacter] = Aliased("avatar_list")
     in_game_avatar: str = Aliased("cur_head_icon_url")
     phone_background: str = Aliased("phone_background_image_url")
+    head_icon_frame_url: typing.Optional[str] = None
 
 
 class StarRailUserInfo(APIModel):
