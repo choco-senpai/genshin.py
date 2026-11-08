@@ -6,7 +6,7 @@ import typing
 
 import pydantic
 
-from genshin.models.model import APIModel, Unique
+from genshin.models.model import Aliased, APIModel, Unique
 from genshin.utility import deprecation
 
 from . import constants
@@ -130,9 +130,10 @@ class BaseCharacter(APIModel, Unique):
     rarity: int
     icon: str
 
-    # HoYoLAB CDN URLs when present on the payload (not Enka/Ambr computed art)
-    image: typing.Optional[str] = None
-    side_icon: typing.Optional[str] = None
+    # HoYoLAB CDN URLs when present on the payload. Upstream's `image`/`side_icon`
+    # properties (Enka/Ambr computed art) stay untouched below.
+    hoyolab_image: typing.Optional[str] = Aliased("image", default=None)
+    hoyolab_side_icon: typing.Optional[str] = Aliased("side_icon", default=None)
     card_image: typing.Optional[str] = None
 
     collab: bool = False
@@ -184,18 +185,16 @@ class BaseCharacter(APIModel, Unique):
         return values
 
     @property
-    def gacha_art(self) -> str:
-        """Enka/Ambr gacha art (fallback when HoYoLAB `image` is absent)."""
+    @deprecation.deprecated("gacha_art")
+    def image(self) -> str:
         return _create_icon_from_id(self.id, "UI_Gacha_AvatarImg_{}")
 
     @property
-    @deprecation.deprecated("gacha_art")
-    def enka_image(self) -> str:
-        return self.gacha_art
+    def gacha_art(self) -> str:
+        return _create_icon_from_id(self.id, "UI_Gacha_AvatarImg_{}")
 
     @property
-    def enka_side_icon(self) -> str:
-        """Enka/Ambr side icon derived from `icon` (fallback when HoYoLAB `side_icon` is absent)."""
+    def side_icon(self) -> str:
         return _create_icon(self.icon, "UI_AvatarIcon_Side_{}")
 
     @property

@@ -168,7 +168,7 @@ class ZZZStats(APIModel):
     shiyu_defense_frontiers: int = Aliased("cur_period_zone_layer_count")
     bangboo_obtained: int = Aliased("buddy_num")
     achievement_count: int
-    hia_coin: typing.Optional[HIACoin] = None
+    hia_coin: typing.Optional[HIACoin] = Aliased("commemorative_coins_list")
     commemorative_coins: typing.Sequence[HIACoin] = Aliased("commemorative_coins_list", default=())
 
     hadal_brief: typing.Optional[ZZZHadalBrief] = None
@@ -186,13 +186,11 @@ class ZZZStats(APIModel):
     bangboo_micro_web_brief: typing.Optional[ZZZBangbooMicroWebBrief] = None
     holo_boss_brief: typing.Optional[ZZZHoloBossBrief] = None
 
-    @pydantic.model_validator(mode="before")
-    @classmethod
-    def __unnest_hia_coin(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:
-        coins = values.get("commemorative_coins_list") or values.get("commemorative_coins") or []
-        if "hia_coin" not in values:
-            values["hia_coin"] = coins[0] if coins else None
-        return values
+    @pydantic.field_validator("hia_coin", mode="before")
+    def __unnest_hia_coin(
+        cls, v: typing.List[typing.Dict[str, typing.Any]]
+    ) -> typing.Optional[typing.Dict[str, typing.Any]]:
+        return v[0] if v else None
 
 
 class ZZZCatNote(APIModel):
@@ -239,18 +237,11 @@ class ZZZBaseBangboo(APIModel):
     rarity: typing.Literal["S", "A"]
     level: int
     star: int
+    icon: str = pydantic.Field(
+        validation_alias=pydantic.aliases.AliasChoices("bangboo_square_url", "bangboo_rectangle_url")
+    )
     bangboo_square_url: typing.Optional[str] = None
     bangboo_rectangle_url: typing.Optional[str] = None
-    icon: str = ""
-
-    @pydantic.model_validator(mode="before")
-    @classmethod
-    def __populate_icon(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:
-        square = values.get("bangboo_square_url")
-        rect = values.get("bangboo_rectangle_url")
-        if not values.get("icon"):
-            values["icon"] = square or rect or ""
-        return values
 
 
 class ZZZUserStats(APIModel):

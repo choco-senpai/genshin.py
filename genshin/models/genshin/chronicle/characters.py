@@ -227,8 +227,8 @@ class GenshinDetailCharacter(PartialCharacter):
 
     is_chosen: bool
 
-    # Same HoYoLAB CDN URL as `image` on BaseCharacter (kept for backward compat).
-    display_image: str = ""
+    # display_image is a different image that is returned by the full character endpoint, but it is not the full gacha art.
+    display_image: str = Aliased("image")
 
     weapon_type: GenshinWeaponType
     weapon: DetailCharacterWeapon
@@ -246,12 +246,6 @@ class GenshinDetailCharacter(PartialCharacter):
     element_properties: typing.Sequence[PropertyValue]
 
     recommend_relic_property: typing.Optional[RecommendRelicProperty] = None
-
-    @pydantic.model_validator(mode="before")
-    def __sync_display_image(cls, values: dict[str, typing.Any]) -> dict[str, typing.Any]:
-        if isinstance(values, dict) and not values.get("display_image") and values.get("image"):
-            values["display_image"] = values["image"]
-        return values
 
 
 class GenshinDetailCharacters(APIModel):
